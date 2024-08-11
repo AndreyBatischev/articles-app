@@ -6,14 +6,14 @@ import { User } from 'src/modules/user/entities/users.entity';
 export class CreateArticleDto {
   @ApiProperty({
     title: 'Заголовок статьи',
-    example: 'Самая крутая статья'
+    example: 'Самая крутая статья',
   })
   @IsNotEmpty()
   title: string;
 
   @ApiProperty({
     title: 'Текст статьи',
-    example: 'Какой то умный текст о важных вещах'
+    example: 'Какой то умный текст о важных вещах',
   })
   @IsNotEmpty()
   @IsString()
@@ -21,7 +21,7 @@ export class CreateArticleDto {
 
   @ApiProperty({
     title: 'Автор статьи',
-    example: 'Лев Толстой'
+    example: 'Лев Толстой',
   })
   @IsNotEmpty()
   @IsString()
@@ -29,7 +29,7 @@ export class CreateArticleDto {
 
   @ApiProperty({
     title: 'Дата публикации статьи',
-    example: '10.08.2024, 16:53:14'
+    example: '10.08.2024, 16:53:14',
   })
   @IsNotEmpty()
   @IsDate()

@@ -1,8 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+} from 'typeorm';
 import { IsDate, IsNotEmpty } from 'class-validator';
 import { User } from 'src/modules/user/entities/users.entity';
 import { ApiProperty } from '@nestjs/swagger';
-
 
 @Entity('articles')
 export class Articles {
@@ -11,7 +16,7 @@ export class Articles {
 
   @ApiProperty({
     title: 'Заголовок статьи',
-    example: 'Самая крутая статья'
+    example: 'Самая крутая статья',
   })
   @Column()
   @IsNotEmpty()
@@ -19,7 +24,7 @@ export class Articles {
 
   @ApiProperty({
     title: 'Текст статьи',
-    example: 'Какой то умный текст о важных вещах'
+    example: 'Какой то умный текст о важных вещах',
   })
   @Column()
   @IsNotEmpty()
@@ -27,7 +32,7 @@ export class Articles {
 
   @ApiProperty({
     title: 'Автор статьи',
-    example: 'Лев Толстой'
+    example: 'Лев Толстой',
   })
   @Column()
   @IsNotEmpty()
@@ -35,7 +40,7 @@ export class Articles {
 
   @ApiProperty({
     title: 'Дата публикации статьи',
-    example: '10.08.2024, 16:53:14'
+    example: '10.08.2024, 16:53:14',
   })
   @Column()
   @IsDate()
@@ -43,7 +48,7 @@ export class Articles {
 
   @ApiProperty({
     title: 'Дата создания статьи',
-    example: '10.08.2024, 16:53:14'
+    example: '10.08.2024, 16:53:14',
   })
   @CreateDateColumn()
   createdAt: Date;

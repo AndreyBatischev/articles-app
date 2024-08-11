@@ -10,7 +10,7 @@ export class User {
 
   @ApiProperty({
     title: 'Имя пользователя',
-    example: 'Лев'
+    example: 'Лев',
   })
   @Column()
   @IsNotEmpty()
@@ -18,7 +18,7 @@ export class User {
 
   @ApiProperty({
     title: 'Email',
-    example: 'lev1828@tolstoy.ru'
+    example: 'lev1828@tolstoy.ru',
   })
   @Column({ unique: true })
   @IsEmail()
@@ -26,7 +26,7 @@ export class User {
 
   @ApiProperty({
     title: 'Пароль',
-    example: 'Lev_1828!'
+    example: 'Lev_1828!',
   })
   @Column()
   @IsNotEmpty()

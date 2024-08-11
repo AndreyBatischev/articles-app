@@ -1,19 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsNotEmpty, IsString } from 'class-validator';
 import { User } from 'src/modules/user/entities/users.entity';
 
 export class UpdateArticleDto {
   @ApiProperty({
     title: 'Заголовок статьи',
-    example: 'Самая крутая статья'
+    example: 'Самая крутая статья',
   })
   @IsNotEmpty()
   title: string;
 
   @ApiProperty({
     title: 'Текст статьи',
-    example: 'Какой то умный текст о важных вещах'
+    example: 'Какой то умный текст о важных вещах',
   })
   @IsNotEmpty()
   @IsString()
@@ -21,7 +21,7 @@ export class UpdateArticleDto {
 
   @ApiProperty({
     title: 'Автор статьи',
-    example: 'Лев Толстой'
+    example: 'Лев Толстой',
   })
   @IsNotEmpty()
   @IsString()
@@ -29,7 +29,7 @@ export class UpdateArticleDto {
 
   @ApiProperty({
     title: 'Дата публикации статьи',
-    example: '10.08.2024, 16:53:14'
+    example: '10.08.2024, 16:53:14',
   })
   @IsNotEmpty()
   @IsDate()

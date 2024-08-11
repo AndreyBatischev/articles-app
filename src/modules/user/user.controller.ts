@@ -1,16 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entities/users.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller({ path: 'users', version: '1' })
 export class UserController {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Post()
-  @ApiCreatedResponse({ description: 'User has been successfully created.', type: User })
+  @ApiCreatedResponse({
+    description: 'User has been successfully created.',
+    type: User,
+  })
   @ApiBadRequestResponse({ description: 'Invalid input.' })
   create(@Body() user: CreateUserDto) {
     return this.userService.create(user);
@@ -32,7 +50,10 @@ export class UserController {
   }
 
   @Patch(':id')
-  @ApiOkResponse({ description: 'User has been successfully updated.', type: User })
+  @ApiOkResponse({
+    description: 'User has been successfully updated.',
+    type: User,
+  })
   @ApiNotFoundResponse({ description: 'User not found.' })
   @ApiBadRequestResponse({ description: 'Invalid input.' })
   update(@Param('id', ParseUUIDPipe) id: string, @Body() user: Partial<User>) {

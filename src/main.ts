@@ -20,7 +20,9 @@ async function bootstrap() {
   const nodeEnv = configService.get<string>('NODE_ENV');
   if (nodeEnv !== 'production') {
     createSwagger(app);
-    console.log(`Swagger documentation is available at http://${host}:${port}/docs/api`);
+    console.log(
+      `Swagger documentation is available at http://${host}:${port}/docs/api`,
+    );
   }
 
   await app.listen(port, () => {
