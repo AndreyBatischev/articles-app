@@ -89,6 +89,10 @@ export class ArticlesService {
     updateArticleDto: UpdateArticleDto,
   ): Promise<Articles> {
     const article = await this.findOne(id);
+    if (!article) {
+      throw new NotFoundException(`Article with ID ${id} not found`);
+    }
+    
     Object.assign(article, updateArticleDto);
     const updatedArticles = await this.articlesRepository.save(article);
     await this.cacheManager.del('all_articles');
