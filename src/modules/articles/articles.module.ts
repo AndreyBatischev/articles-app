@@ -6,10 +6,11 @@ import { ArticlesController } from './articles.controller';
 import * as redisStore from 'cache-manager-redis-store';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
+import { User } from '../user/entities/users.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Articles]),
+    TypeOrmModule.forFeature([Articles, User]),
     CacheModule.register({
       useFactory: (configService: ConfigService) => ({
         store: typeof redisStore,

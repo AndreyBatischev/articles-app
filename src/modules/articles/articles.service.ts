@@ -6,12 +6,15 @@ import { CreateArticleDto } from './dto/create-article-dto';
 import { UpdateArticleDto } from './dto/update-article-dto';
 import { CACHE_MANAGER, Cache } from '@nestjs/cache-manager';
 import { stringify } from 'querystring';
+import { User } from '../user/entities/users.entity';
 
 @Injectable()
 export class ArticlesService {
   constructor(
     @InjectRepository(Articles)
     private articlesRepository: Repository<Articles>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
@@ -71,7 +74,11 @@ export class ArticlesService {
   }
 
   async create(createArticleDto: CreateArticleDto): Promise<Articles> {
+    const user = await this.userRepository.findOne({ where: { id: createArticleDto.userId } });
+    if (!user) throw new NotFoundException('Пользователь не найден');
+
     const article = this.articlesRepository.create(createArticleDto);
+
     const savedArticle = await this.articlesRepository.save(article);
     await this.cacheManager.del('all_articles');
     return savedArticle;

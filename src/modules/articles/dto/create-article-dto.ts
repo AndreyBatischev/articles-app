@@ -1,7 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
-import { User } from 'src/modules/user/entities/users.entity';
+import { IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class CreateArticleDto {
   @ApiProperty({
@@ -40,6 +38,6 @@ export class CreateArticleDto {
     example: '90aad9e6-ac6c-4da8-897d-34023bee7d0c',
   })
   @IsNotEmpty()
-  @Type(() => User)
-  user: User;
+  @IsUUID()
+  userId: string;
 }

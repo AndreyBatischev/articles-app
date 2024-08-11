@@ -5,8 +5,8 @@ import {
   CreateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { IsDate, IsNotEmpty } from 'class-validator';
-import { User } from 'src/modules/user/entities/users.entity';
+import { IsNotEmpty } from 'class-validator';
+import { User } from '../../user/entities/users.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('articles')
@@ -42,8 +42,7 @@ export class Articles {
     title: 'Дата публикации статьи',
     example: '10.08.2024, 16:53:14',
   })
-  @Column()
-  @IsDate()
+  @Column({ type: 'timestamp' })
   publicatedDate: Date;
 
   @ApiProperty({

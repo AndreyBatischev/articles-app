@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { IsEmail, IsNotEmpty } from 'class-validator';
-import { Articles } from 'src/modules/articles/entities/articles.entity';
+import { Articles } from '../../articles/entities/articles.entity';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity('users')
