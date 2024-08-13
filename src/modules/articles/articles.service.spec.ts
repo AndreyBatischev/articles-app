@@ -43,7 +43,7 @@ describe('ArticlesService', () => {
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     cacheManager = module.get<Cache>(CACHE_MANAGER);
   });
-//create
+  //create
   it('should throw NotFoundException if user is not found', async () => {
     const createNewArticleDto = {
         userId: '726bf49b-037b-442e-a1e1-a1e1cb11ae1d',
@@ -93,4 +93,49 @@ describe('ArticlesService', () => {
     expect(articlesRepository.save).toHaveBeenCalledWith(article);
     expect(cacheManager.del).toHaveBeenCalledWith('all_articles');
   })
+  //create end
+  
+  //findOne
+  it('should return an article from cache if it exists', async () => {
+    const id = '90aad9e6-ac6c-4da8-897d-34023bee7d0c';
+    const cachedArticle = new Articles();
+    cachedArticle.id = id;
+
+    jest.spyOn(cacheManager, 'get').mockResolvedValue(cachedArticle);
+
+    const result = await service.findOne(id);
+
+    expect(result).toEqual(cachedArticle);
+    expect(cacheManager.get).toHaveBeenCalledWith(`article_${id}`);
+  });
+
+  it('should return an article from the database if not in cache', async () => {
+    const id = '90aad9e6-ac6c-4da8-897d-34023bee7d0c';
+    const article = new Articles();
+    article.id = id;
+
+    jest.spyOn(cacheManager, 'get').mockResolvedValue(null);
+    jest.spyOn(articlesRepository, 'findOne').mockResolvedValue(article);
+    jest.spyOn(cacheManager, 'set').mockResolvedValue(undefined);
+
+    const result = await service.findOne(id);
+
+    expect(result).toEqual(article);
+    expect(cacheManager.get).toHaveBeenCalledWith(`article_${id}`);
+    expect(articlesRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+    expect(cacheManager.set).toHaveBeenCalledWith(`article_${id}`, article, 60);
+  });
+
+  it('should throw NotFoundException if article is not found', async () => {
+    const id = '90aad9e6-ac6c-4da8-897d-34023bee7d0c';
+
+    jest.spyOn(cacheManager, 'get').mockResolvedValue(null);
+    jest.spyOn(articlesRepository, 'findOne').mockResolvedValue(null);
+
+    await expect(service.findOne(id)).rejects.toThrow(NotFoundException);
+    expect(cacheManager.get).toHaveBeenCalledWith(`article_${id}`);
+    expect(articlesRepository.findOne).toHaveBeenCalledWith({ where: { id } });
+    expect(cacheManager.set).not.toHaveBeenCalled();
+  });  
+  //findOne end
 });
