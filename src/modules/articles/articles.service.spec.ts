@@ -6,6 +6,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { User } from '../user/entities/users.entity';
+import { stringify } from 'querystring';
 
 describe('ArticlesService', () => {
   let service: ArticlesService;
@@ -94,7 +95,7 @@ describe('ArticlesService', () => {
     expect(cacheManager.del).toHaveBeenCalledWith('all_articles');
   })
   //create end
-  
+
   //findOne
   it('should return an article from cache if it exists', async () => {
     const id = '90aad9e6-ac6c-4da8-897d-34023bee7d0c';
@@ -138,4 +139,100 @@ describe('ArticlesService', () => {
     expect(cacheManager.set).not.toHaveBeenCalled();
   });  
   //findOne end
+
+  //update 
+  it('should throw NotFoundException if article is not found', async () => {
+    const id = '90aad9e6-ac6c-4da8-897d-34023bee7d0c';
+    const updateArticleDto = {
+      title: 'Updated Title',
+      body: 'Updated body',
+      publicatedDate: new Date(),
+    };
+  
+    jest.spyOn(service, 'findOne').mockResolvedValue(undefined); 
+    jest.spyOn(articlesRepository, 'save').mockReturnValue(Promise.resolve(undefined));
+  
+    await expect(service.update(id, updateArticleDto)).rejects.toThrow(NotFoundException);
+    expect(service.findOne).toHaveBeenCalledWith(id);
+    expect(articlesRepository.save).not.toHaveBeenCalled();
+    expect(cacheManager.del).not.toHaveBeenCalled();
+  });
+
+  it('should call cache delete methods after updating an article', async () => {
+    const id = '90aad9e6-ac6c-4da8-897d-34023bee7d0c';
+    const updateArticleDto = {
+      title: 'Updated Title',
+      body: 'Updated body',
+      publicatedDate: new Date(),
+    };
+
+    const existingArticle = new Articles();
+    existingArticle.id = id;
+    existingArticle.title = 'Title';
+    existingArticle.body = 'body';
+    existingArticle.publicatedDate = new Date('2024-08-10T16:53:14Z');
+
+    const updatedArticle = { ...existingArticle, ...updateArticleDto };
+
+    jest.spyOn(service, 'findOne').mockResolvedValue(existingArticle);
+    jest.spyOn(articlesRepository, 'save').mockResolvedValue(updatedArticle);
+    jest.spyOn(cacheManager, 'del').mockResolvedValue(undefined);
+
+    await service.update(id, updateArticleDto);
+
+    expect(cacheManager.del).toHaveBeenCalledWith('all_articles');
+    expect(cacheManager.del).toHaveBeenCalledWith(`article_${id}`);
+  });
+  //update end
+
+  //findAll
+  it('should cache the result after querying the database', async () => {
+    const query = { page: 1, limit: 10 };
+    const cacheKey = `articles_${stringify(query)}`;
+    const dbArticles = [{ id: '1', title: 'Article from db' } as Articles];
+
+    jest.spyOn(cacheManager, 'get').mockResolvedValue(undefined);
+    jest.spyOn(articlesRepository, 'find').mockResolvedValue(dbArticles);
+    jest.spyOn(cacheManager, 'set').mockResolvedValue(undefined);
+
+    const result = await service.findAll(query);
+
+    expect(cacheManager.set).toHaveBeenCalledWith(cacheKey, result, 60);
+    expect(result).toEqual(dbArticles);
+  });
+
+  it('should return articles from cache if they exist', async () => {
+    const query = { page: 1, limit: 10 };
+    const cacheKey = `articles_${stringify(query)}`;
+    const cachedArticles = [{ id: '1', title: 'Article from cache' } as Articles];
+
+    jest.spyOn(cacheManager, 'get').mockResolvedValue(cachedArticles);
+
+    const result = await service.findAll(query);
+
+    expect(cacheManager.get).toHaveBeenCalledWith(cacheKey);
+    expect(result).toEqual(cachedArticles);
+  });
+
+  it('should return articles database if articles are not in cache', async () => {
+    const query = { page: 1, limit: 10 };
+    const cacheKey = `articles_${stringify(query)}`;
+    const dbArticles = [{ id: '1', title: 'DB Article' } as Articles];
+
+    jest.spyOn(cacheManager, 'get').mockResolvedValue(undefined);
+    jest.spyOn(articlesRepository, 'find').mockResolvedValue(dbArticles);
+    jest.spyOn(cacheManager, 'set').mockResolvedValue(undefined);
+
+    const result = await service.findAll(query);
+
+    expect(cacheManager.get).toHaveBeenCalledWith(cacheKey);
+    expect(articlesRepository.find).toHaveBeenCalledWith({
+      skip: 0,
+      take: 10,
+      where: {},
+    });
+    expect(cacheManager.set).toHaveBeenCalledWith(cacheKey, result, 60);
+    expect(result).toEqual(dbArticles);
+  });
+  //findAll end
 });
