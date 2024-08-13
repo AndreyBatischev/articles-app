@@ -25,7 +25,7 @@ describe('ArticlesService', () => {
           useClass: Repository,
         },
         {
-          provide: getRepositoryToken(User),  
+          provide: getRepositoryToken(User),
           useClass: Repository,
         },
         {
@@ -40,27 +40,35 @@ describe('ArticlesService', () => {
     }).compile();
 
     service = module.get<ArticlesService>(ArticlesService);
-    articlesRepository = module.get<Repository<Articles>>(getRepositoryToken(Articles));
+    articlesRepository = module.get<Repository<Articles>>(
+      getRepositoryToken(Articles),
+    );
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     cacheManager = module.get<Cache>(CACHE_MANAGER);
   });
   //create
   it('should throw NotFoundException if user is not found', async () => {
     const createNewArticleDto = {
-        userId: '726bf49b-037b-442e-a1e1-a1e1cb11ae1d',
-        title: 'New Article',
-        body: 'Some body',
-        autor: 'Test',
-        publicatedDate: new Date()
-      };
+      userId: '726bf49b-037b-442e-a1e1-a1e1cb11ae1d',
+      title: 'New Article',
+      body: 'Some body',
+      autor: 'Test',
+      publicatedDate: new Date(),
+    };
 
     jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
     jest.spyOn(articlesRepository, 'create').mockReturnValue({} as Articles);
-    jest.spyOn(articlesRepository, 'save').mockReturnValue(Promise.resolve({} as Articles));
+    jest
+      .spyOn(articlesRepository, 'save')
+      .mockReturnValue(Promise.resolve({} as Articles));
 
-    await expect(service.create(createNewArticleDto)).rejects.toThrow(NotFoundException);
+    await expect(service.create(createNewArticleDto)).rejects.toThrow(
+      NotFoundException,
+    );
 
-    expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: createNewArticleDto.userId } });
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      where: { id: createNewArticleDto.userId },
+    });
     expect(articlesRepository.create).not.toHaveBeenCalled();
     expect(articlesRepository.save).not.toHaveBeenCalled();
     expect(cacheManager.del).not.toHaveBeenCalled();
@@ -68,32 +76,40 @@ describe('ArticlesService', () => {
 
   it('should create an article if user exists', async () => {
     const createNewArticleDto = {
-        userId: '726bf49b-037b-442e-a1e1-a1e1cb11ae1d',
-        title: 'New Article',
-        body: 'Some body',
-        autor: 'Test',
-        publicatedDate: new Date(),
-        createdAt: new Date()
-      };
+      userId: '726bf49b-037b-442e-a1e1-a1e1cb11ae1d',
+      title: 'New Article',
+      body: 'Some body',
+      autor: 'Test',
+      publicatedDate: new Date(),
+      createdAt: new Date(),
+    };
 
     const user = new User();
-    user.id = createNewArticleDto.userId
-    user.name = createNewArticleDto.autor
+    user.id = createNewArticleDto.userId;
+    user.name = createNewArticleDto.autor;
 
     let article = new Articles();
-    article = { id: '326bf49b-037b-442e-a1e1-a1e1cb11ae1d' , ...createNewArticleDto, user }
+    article = {
+      id: '326bf49b-037b-442e-a1e1-a1e1cb11ae1d',
+      ...createNewArticleDto,
+      user,
+    };
 
     jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
     jest.spyOn(articlesRepository, 'create').mockReturnValue(article);
-    jest.spyOn(articlesRepository, 'save').mockReturnValue(Promise.resolve(article));
+    jest
+      .spyOn(articlesRepository, 'save')
+      .mockReturnValue(Promise.resolve(article));
     jest.spyOn(cacheManager, 'del').mockResolvedValue(undefined);
 
-    const result = await service.create(createNewArticleDto)
-    expect(userRepository.findOne).toHaveBeenCalledWith({ where: { id: createNewArticleDto.userId } });
+    const result = await service.create(createNewArticleDto);
+    expect(userRepository.findOne).toHaveBeenCalledWith({
+      where: { id: createNewArticleDto.userId },
+    });
     expect(articlesRepository.create).toHaveBeenCalledWith(createNewArticleDto);
     expect(articlesRepository.save).toHaveBeenCalledWith(article);
     expect(cacheManager.del).toHaveBeenCalledWith('all_articles');
-  })
+  });
   //create end
 
   //findOne
@@ -137,10 +153,10 @@ describe('ArticlesService', () => {
     expect(cacheManager.get).toHaveBeenCalledWith(`article_${id}`);
     expect(articlesRepository.findOne).toHaveBeenCalledWith({ where: { id } });
     expect(cacheManager.set).not.toHaveBeenCalled();
-  });  
+  });
   //findOne end
 
-  //update 
+  //update
   it('should throw NotFoundException if article is not found', async () => {
     const id = '90aad9e6-ac6c-4da8-897d-34023bee7d0c';
     const updateArticleDto = {
@@ -148,11 +164,15 @@ describe('ArticlesService', () => {
       body: 'Updated body',
       publicatedDate: new Date(),
     };
-  
-    jest.spyOn(service, 'findOne').mockResolvedValue(undefined); 
-    jest.spyOn(articlesRepository, 'save').mockReturnValue(Promise.resolve(undefined));
-  
-    await expect(service.update(id, updateArticleDto)).rejects.toThrow(NotFoundException);
+
+    jest.spyOn(service, 'findOne').mockResolvedValue(undefined);
+    jest
+      .spyOn(articlesRepository, 'save')
+      .mockReturnValue(Promise.resolve(undefined));
+
+    await expect(service.update(id, updateArticleDto)).rejects.toThrow(
+      NotFoundException,
+    );
     expect(service.findOne).toHaveBeenCalledWith(id);
     expect(articlesRepository.save).not.toHaveBeenCalled();
     expect(cacheManager.del).not.toHaveBeenCalled();
@@ -204,7 +224,9 @@ describe('ArticlesService', () => {
   it('should return articles from cache if they exist', async () => {
     const query = { page: 1, limit: 10 };
     const cacheKey = `articles_${stringify(query)}`;
-    const cachedArticles = [{ id: '1', title: 'Article from cache' } as Articles];
+    const cachedArticles = [
+      { id: '1', title: 'Article from cache' } as Articles,
+    ];
 
     jest.spyOn(cacheManager, 'get').mockResolvedValue(cachedArticles);
 

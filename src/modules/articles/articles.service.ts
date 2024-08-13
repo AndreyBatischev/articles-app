@@ -74,7 +74,9 @@ export class ArticlesService {
   }
 
   async create(createArticleDto: CreateArticleDto): Promise<Articles> {
-    const user = await this.userRepository.findOne({ where: { id: createArticleDto.userId } });
+    const user = await this.userRepository.findOne({
+      where: { id: createArticleDto.userId },
+    });
     if (!user) throw new NotFoundException('Пользователь не найден');
 
     const article = this.articlesRepository.create(createArticleDto);
@@ -92,7 +94,7 @@ export class ArticlesService {
     if (!article) {
       throw new NotFoundException(`Article with ID ${id} not found`);
     }
-    
+
     Object.assign(article, updateArticleDto);
     const updatedArticles = await this.articlesRepository.save(article);
     await this.cacheManager.del('all_articles');
