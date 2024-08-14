@@ -102,7 +102,7 @@ describe('ArticlesService', () => {
       .mockReturnValue(Promise.resolve(article));
     jest.spyOn(cacheManager, 'del').mockResolvedValue(undefined);
 
-    const result = await service.create(createNewArticleDto);
+    await service.create(createNewArticleDto);
     expect(userRepository.findOne).toHaveBeenCalledWith({
       where: { id: createNewArticleDto.userId },
     });

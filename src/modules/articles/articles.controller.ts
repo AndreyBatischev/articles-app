@@ -23,6 +23,7 @@ import { ArticlesService } from './articles.service';
 import { Articles } from './entities/articles.entity';
 import { CreateArticleDto } from './dto/create-article-dto';
 import { UpdateArticleDto } from './dto/update-article-dto';
+import { FindAllDto } from './dto/find-all-article-dto';
 
 @ApiTags('articles')
 @Controller({ path: 'articles', version: '1' })
@@ -46,18 +47,8 @@ export class ArticlesController {
     description: 'List of articles with pagination and filtering.',
     type: [Articles],
   })
-  findAll(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-    @Query('author') author?: string,
-    @Query('publicationDate') publicationDate?: string,
-  ) {
-    return this.articleService.findAll({
-      page,
-      limit,
-      author,
-      publicationDate,
-    });
+  findAll(@Query() filterParams?: FindAllDto) {
+    return this.articleService.findAll(filterParams);
   }
 
   @Get(':id')
